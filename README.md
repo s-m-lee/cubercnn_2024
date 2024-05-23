@@ -7,7 +7,7 @@
 4. [Unprojection](#unprojection)
 
 ## Dataset <a name="dataset"> </a>
-- We selected 6 images from `Omni3d - ARKitScience dataset`, including indoor furniture. You can download it referencing below.
+- We selected 6 images from `Omni3d - ARKitScience dataset`, including our main target objects-indoor furniture. You can download it referencing below.
 https://github.com/facebookresearch/omni3d/blob/main/datasets/ARKitScenes/download_arkitscenes_images.sh
 
 ## Cube R-CNN Inference <a name="cubercnn"></a>
