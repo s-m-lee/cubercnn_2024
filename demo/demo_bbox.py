@@ -8,7 +8,8 @@ from collections import OrderedDict
 import torch
 ### edited ###
 import json
-###
+import open3d as o3d
+######
 
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
@@ -67,8 +68,11 @@ def do_test(args, cfg, model):
         h, w = image_shape
         
         if focal_length == 0:
-            focal_length_ndc = 4.0
-            focal_length = focal_length_ndc * h / 2
+            ### edited###
+            focal_length = 1000
+            ######
+            #focal_length_ndc = 4.0
+            #focal_length = focal_length_ndc * h / 2
 
         if len(principal_point) == 0:
             px, py = w/2, h/2
@@ -98,7 +102,8 @@ def do_test(args, cfg, model):
 
         ### edited ###
         data_to_save = []
-        ###
+        ply_file_path = os.path.join(output_dir, im_name + '_bbox.ply')
+        ######
 
         if n_det > 0:
             for idx, (corners3D, center_cam, center_2D, dimensions, pose, score, cat_idx) in enumerate(zip(
@@ -120,9 +125,12 @@ def do_test(args, cfg, model):
 
                 ### edited ###
                 ### save bbox as json ###
-                data_to_save.append(cats[cat_idx])
-                data_to_save.append(bbox3D)
-                ###
+                bbox_data = {
+                    "category": cats[cat_idx],
+                    "corners3D": corners3D.tolist()
+                }
+                data_to_save.append(bbox_data)
+                ######
         
         print('File: {} with {} dets'.format(im_name, len(meshes)))
 
@@ -133,19 +141,38 @@ def do_test(args, cfg, model):
                 im_concat = np.concatenate((im_drawn_rgb, im_topdown), axis=1)
                 vis.imshow(im_concat)
 
-            #util.imwrite(im_drawn_rgb, os.path.join(output_dir, im_name+'_boxes.jpg'))
-            #util.imwrite(im_topdown, os.path.join(output_dir, im_name+'_novel.jpg'))
+            
+            util.imwrite(im_drawn_rgb, os.path.join(output_dir, im_name+'_boxes.jpg'))
+            util.imwrite(im_topdown, os.path.join(output_dir, im_name+'_novel.jpg'))
+            
             ### write json file ###
-            json_file_path = os.path.join(output_dir, im_name+'_bbox.json')
+            json_file_path = os.path.join(output_dir, im_name+'.json')
             if os.path.exists(json_file_path):
                 os.remove(json_file_path)
             with open(json_file_path, 'w') as json_file:
                 json.dump(data_to_save, json_file)
-            
             print('bbox json file saved')
-            ###
-        else:
-            util.imwrite(im, os.path.join(output_dir, im_name+'_boxes.jpg'))
+            
+            ### visualize bbox ###
+            bbox_color = [1, 0, 0]
+            points = []
+            colors = []
+            for bbox in data_to_save:
+                corners = bbox["corners3D"]
+                for corner in corners:        
+                    points.append(corner)
+                    colors.append(bbox_color.copy())
+                bbox_color.append(bbox_color[0])
+                bbox_color.pop(0)
+        cloud = o3d.geometry.PointCloud()
+        cloud.points = o3d.utility.Vector3dVector(points)
+        cloud.colors = o3d.utility.Vector3dVector(colors)
+        o3d.io.write_point_cloud(ply_file_path, cloud)
+        print('bbox ply file saved')
+        ######
+
+        #else:
+            #util.imwrite(im, os.path.join(output_dir, im_name+'_boxes.jpg'))
 
 def setup(args):
     """
