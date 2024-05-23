@@ -37,7 +37,8 @@ $ pip install pillow==9.1.0
 
 $ sh train_bbox.sh 
 ```
-##
+
+
 ##### train_bbox.sh - extracting 3D bounding box points
 *Do not change --congif-file path cubercnn://(...).
 - set your own `input-folder` & `OUTPUT_DIR`
@@ -53,14 +54,16 @@ OUTPUT_DIR output/custom
 ```
 ##### demo_bbox.py 
 You can set the focal length in `do_test()` - `focal_length` (default = `1000`)
-*Use a focal length same with `Metric3D`.
 
+*Use a focal length same with `Metric3D`.
 
 ## Metric3D Inference <a name="metric3d"></a>
 - Monocular metric depth estimation
 #### Inference via web demo (+ 3D unprojection)
 https://huggingface.co/spaces/JUGGHM/Metric3D
+
 You can set the focal length also. (default = `1000`) 
+
 *Use a focal length same with `Cube R-CNN`.
 
 ## Unprojection <a name="unprojection"> </a>
